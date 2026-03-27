@@ -167,40 +167,42 @@ const useConstructionStore = create<ConstructionStoreState>((set, get) => ({
     const job = get().jobs.find((j) => j.id === jobId);
     if (!job) { set({ isLoading: false }); return; }
 
+    const ts = Date.now();
+    const phaseIds = [`phase-${ts}-1`, `phase-${ts}-2`, `phase-${ts}-3`, `phase-${ts}-4`];
     const newProject: Project = {
-      id: `proj-${Date.now()}`,
+      id: `proj-${ts}`,
       jobId,
       title: job.title,
       status: 'in-progress',
       progress: 0,
       phases: [
         {
-          id: `phase-${Date.now()}-1`,
+          id: phaseIds[0],
           name: 'Planning',
           tasks: [
-            { id: `task-${Date.now()}-1`, phaseId: `phase-${Date.now()}-1`, title: 'Finalize design', assignee: 'Marcus Webb', status: 'todo' },
-            { id: `task-${Date.now()}-2`, phaseId: `phase-${Date.now()}-1`, title: 'Obtain permits', assignee: 'Marcus Webb', status: 'todo' },
+            { id: `task-${ts}-1`, phaseId: phaseIds[0], title: 'Finalize design', assignee: 'Marcus Webb', status: 'todo' },
+            { id: `task-${ts}-2`, phaseId: phaseIds[0], title: 'Obtain permits', assignee: 'Marcus Webb', status: 'todo' },
           ],
         },
         {
-          id: `phase-${Date.now()}-2`,
+          id: phaseIds[1],
           name: 'Materials',
           tasks: [
-            { id: `task-${Date.now()}-3`, phaseId: `phase-${Date.now()}-2`, title: 'Order materials', assignee: 'Lisa Chen', status: 'todo' },
+            { id: `task-${ts}-3`, phaseId: phaseIds[1], title: 'Order materials', assignee: 'Lisa Chen', status: 'todo' },
           ],
         },
         {
-          id: `phase-${Date.now()}-3`,
+          id: phaseIds[2],
           name: 'Build',
           tasks: [
-            { id: `task-${Date.now()}-4`, phaseId: `phase-${Date.now()}-3`, title: 'Begin construction', assignee: 'Tom Rivera', status: 'todo' },
+            { id: `task-${ts}-4`, phaseId: phaseIds[2], title: 'Begin construction', assignee: 'Tom Rivera', status: 'todo' },
           ],
         },
         {
-          id: `phase-${Date.now()}-4`,
+          id: phaseIds[3],
           name: 'Inspection',
           tasks: [
-            { id: `task-${Date.now()}-5`, phaseId: `phase-${Date.now()}-4`, title: 'Final inspection', assignee: 'Marcus Webb', status: 'todo' },
+            { id: `task-${ts}-5`, phaseId: phaseIds[3], title: 'Final inspection', assignee: 'Marcus Webb', status: 'todo' },
           ],
         },
       ],
