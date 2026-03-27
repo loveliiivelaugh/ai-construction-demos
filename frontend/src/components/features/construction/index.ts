@@ -1,0 +1,9 @@
+export { default as DashboardPage } from './Dashboard/DashboardPage';
+export { default as CRMPage } from './CRM/CRMPage';
+export { default as BiddingPage } from './Bidding/BiddingPage';
+export { default as ProjectsPage } from './Projects/ProjectsPage';
+export { default as BlueprintsPage } from './Blueprints/BlueprintsPage';
+export { default as MaterialsPage } from './Materials/MaterialsPage';
+export { default as WorkforcePage } from './Workforce/WorkforcePage';
+export { default as PayrollPage } from './Payroll/PayrollPage';
+export { default as ContractsPage } from './Contracts/ContractsPage';
