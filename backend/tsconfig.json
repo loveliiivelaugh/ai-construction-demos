@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+
+    "baseUrl": "./src",
+    "paths": {
+      "@types/*": ["utilities/types/*"],
+      "@lib/*": ["utilities/lib/*"],
+      "@utilities/*": ["utilities/*"]
+    },
+
+    "strict": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+    "esModuleInterop": true,
+    // other compiler options...
+    "types": [
+      "bun-types" // add Bun global
+    ]
+  }
+}
