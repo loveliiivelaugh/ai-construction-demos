@@ -1,4 +1,6 @@
 export { default as DashboardPage } from './Dashboard/DashboardPage';
+export { ExecutiveKpiCard } from './Dashboard/ExecutiveKpiCard';
+export type { ExecutiveKpiCardProps, TrendPoint, KpiStatus } from './Dashboard/ExecutiveKpiCard';
 export { default as CRMPage } from './CRM/CRMPage';
 export { default as BiddingPage } from './Bidding/BiddingPage';
 export { default as ProjectsPage } from './Projects/ProjectsPage';
@@ -7,3 +9,4 @@ export { default as MaterialsPage } from './Materials/MaterialsPage';
 export { default as WorkforcePage } from './Workforce/WorkforcePage';
 export { default as PayrollPage } from './Payroll/PayrollPage';
 export { default as ContractsPage } from './Contracts/ContractsPage';
+export { DashboardCard, StatusChip, MetricChip, TrendChip } from './shared';

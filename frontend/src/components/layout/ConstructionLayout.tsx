@@ -16,8 +16,10 @@ import {
   Tooltip,
   Badge,
   Collapse,
+  Avatar,
+  Button,
 } from '@mui/material';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useUtilityStore } from '../../utilities/store';
 import {
   connectedApps,
@@ -35,16 +37,41 @@ interface NavItem {
   icon: string;
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/construction/dashboard', icon: '📊' },
-  { label: 'CRM / Job Intake', path: '/construction/crm', icon: '💼' },
-  { label: 'Bidding Engine', path: '/construction/bidding', icon: '📋' },
-  { label: 'Projects', path: '/construction/projects', icon: '🗂️' },
-  { label: 'Blueprints', path: '/construction/blueprints', icon: '📐' },
-  { label: 'Materials', path: '/construction/materials', icon: '📦' },
-  { label: 'Workforce', path: '/construction/workforce', icon: '👷' },
-  { label: 'Payroll', path: '/construction/payroll', icon: '💵' },
-  { label: 'Contracts', path: '/construction/contracts', icon: '⚖️' },
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: 'Overview',
+    items: [
+      { label: 'Dashboard', path: '/construction/dashboard', icon: '📊' },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { label: 'CRM / Job Intake', path: '/construction/crm', icon: '💼' },
+      { label: 'Bidding Engine', path: '/construction/bidding', icon: '📋' },
+      { label: 'Projects', path: '/construction/projects', icon: '🗂️' },
+      { label: 'Blueprints', path: '/construction/blueprints', icon: '📐' },
+      { label: 'Materials', path: '/construction/materials', icon: '📦' },
+    ],
+  },
+  {
+    label: 'Team & Finance',
+    items: [
+      { label: 'Workforce', path: '/construction/workforce', icon: '👷' },
+      { label: 'Payroll', path: '/construction/payroll', icon: '💵' },
+    ],
+  },
+  {
+    label: 'Legal',
+    items: [
+      { label: 'Contracts', path: '/construction/contracts', icon: '⚖️' },
+    ],
+  },
 ];
 
 const STATUS_COLOR: Record<AppStatus, string> = {
@@ -245,6 +272,9 @@ function CategorySection({ category, apps }: CategorySectionProps) {
   );
 }
 
+// Flat list used for title resolution
+const allNavItems: NavItem[] = navGroups.flatMap((g) => g.items);
+
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
   const theme = useTheme();
@@ -284,75 +314,78 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Scrollable nav content */}
       <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-        {/* Primary Nav section */}
-        <Box sx={{ pt: 1 }}>
-          <Typography
-            variant="caption"
-            sx={{
-              display: 'block',
-              px: 2,
-              py: 0.5,
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'text.disabled',
-            }}
-          >
-            Navigation
-          </Typography>
-          <List disablePadding>
-            {navItems.map((item) => {
-              const isActive =
-                location.pathname === item.path ||
-                (item.path !== '/construction/dashboard' &&
-                  location.pathname.startsWith(item.path));
+        <List sx={{ pt: 1 }}>
+          {navGroups.map((group, gi) => (
+            <React.Fragment key={group.label}>
+              {gi > 0 && <Divider sx={{ my: 0.5 }} />}
+              <Typography
+                variant="caption"
+                sx={{
+                  px: 2,
+                  pt: 1.5,
+                  pb: 0.5,
+                  display: 'block',
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                  color: 'text.disabled',
+                  fontSize: 10,
+                }}
+              >
+                {group.label}
+              </Typography>
+              {group.items.map((item) => {
+                const isActive =
+                  location.pathname === item.path ||
+                  (item.path !== '/construction/dashboard' &&
+                    location.pathname.startsWith(item.path));
 
-              return (
-                <ListItemButton
-                  key={item.path}
-                  component={NavLink}
-                  to={item.path}
-                  onClick={onClose}
-                  sx={{
-                    mx: 1,
-                    mb: 0.5,
-                    borderRadius: 1.5,
-                    color: isActive ? 'primary.main' : 'text.secondary',
-                    bgcolor: isActive
-                      ? theme.palette.mode === 'dark'
-                        ? 'rgba(144,202,249,0.12)'
-                        : 'rgba(25,118,210,0.08)'
-                      : 'transparent',
-                    '&:hover': {
-                      bgcolor:
-                        theme.palette.mode === 'dark'
-                          ? 'rgba(255,255,255,0.08)'
-                          : 'rgba(0,0,0,0.04)',
-                    },
-                  }}
-                >
-                  <ListItemIcon
+                return (
+                  <ListItemButton
+                    key={item.path}
+                    component={NavLink}
+                    to={item.path}
+                    onClick={onClose}
                     sx={{
-                      minWidth: 36,
-                      fontSize: 18,
+                      mx: 1,
+                      mb: 0.5,
+                      borderRadius: 1.5,
                       color: isActive ? 'primary.main' : 'text.secondary',
+                      bgcolor: isActive
+                        ? theme.palette.mode === 'dark'
+                          ? 'rgba(144,202,249,0.12)'
+                          : 'rgba(25,118,210,0.08)'
+                        : 'transparent',
+                      '&:hover': {
+                        bgcolor:
+                          theme.palette.mode === 'dark'
+                            ? 'rgba(255,255,255,0.08)'
+                            : 'rgba(0,0,0,0.04)',
+                      },
                     }}
                   >
-                    <Typography fontSize={18}>{item.icon}</Typography>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.label}
-                    primaryTypographyProps={{
-                      fontSize: 14,
-                      fontWeight: isActive ? 700 : 400,
-                    }}
-                  />
-                </ListItemButton>
-              );
-            })}
-          </List>
-        </Box>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 36,
+                        fontSize: 18,
+                        color: isActive ? 'primary.main' : 'text.secondary',
+                      }}
+                    >
+                      <Typography fontSize={18}>{item.icon}</Typography>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      primaryTypographyProps={{
+                        fontSize: 14,
+                        fontWeight: isActive ? 700 : 400,
+                      }}
+                    />
+                  </ListItemButton>
+                );
+              })}
+            </React.Fragment>
+          ))}
+        </List>
 
         <Divider sx={{ my: 1 }} />
 
@@ -391,7 +424,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 }
 
 function getModuleTitle(pathname: string): string {
-  const item = navItems.find(
+  const item = allNavItems.find(
     (n) => pathname === n.path || (n.path !== '/construction/dashboard' && pathname.startsWith(n.path))
   );
   return item?.label ?? 'WoodwardStudio';
@@ -402,6 +435,7 @@ export function ConstructionLayout({ children }: { children: React.ReactNode }) 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { colorMode, setColorMode } = useUtilityStore();
 
   const moduleTitle = getModuleTitle(location.pathname);
@@ -479,13 +513,77 @@ export function ConstructionLayout({ children }: { children: React.ReactNode }) 
             <Typography variant="h6" fontWeight={700} sx={{ flex: 1 }}>
               {moduleTitle}
             </Typography>
+
+            {/* Search shortcut */}
+            <Tooltip title="Global search (Dashboard)">
+              <IconButton
+                onClick={() => navigate('/construction/dashboard')}
+                aria-label="global search"
+                sx={{ mx: 0.5 }}
+              >
+                <Typography fontSize={18}>🔍</Typography>
+              </IconButton>
+            </Tooltip>
+
+            {/* Ask Agent */}
+            <Tooltip title="Ask Agent">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => navigate('/construction/dashboard')}
+                startIcon={<Typography fontSize={16} lineHeight={1}>🤖</Typography>}
+                sx={{
+                  mx: 0.5,
+                  borderRadius: 2,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  display: { xs: 'none', sm: 'inline-flex' },
+                  textTransform: 'none',
+                }}
+              >
+                Ask Agent
+              </Button>
+            </Tooltip>
+
+            {/* Notifications */}
+            <Tooltip title="Notifications">
+              <IconButton aria-label="notifications" sx={{ mx: 0.5 }}>
+                <Badge badgeContent={3} color="error" overlap="circular">
+                  <Typography fontSize={20}>🔔</Typography>
+                </Badge>
+              </IconButton>
+            </Tooltip>
+
+            {/* Dark mode toggle */}
             <Tooltip title={colorMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
               <IconButton
                 onClick={() => setColorMode(colorMode === 'dark' ? 'light' : 'dark')}
                 aria-label="toggle dark mode"
+                sx={{ mx: 0.5 }}
               >
                 <Typography fontSize={20}>{colorMode === 'dark' ? '☀️' : '🌙'}</Typography>
               </IconButton>
+            </Tooltip>
+
+            {/* User avatar */}
+            <Tooltip title="Account">
+              <Avatar
+                onClick={() => {/* account menu placeholder */}}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click(); }}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  ml: 0.5,
+                  bgcolor: 'primary.main',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                WS
+              </Avatar>
             </Tooltip>
           </Toolbar>
         </AppBar>
