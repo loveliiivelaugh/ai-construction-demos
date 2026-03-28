@@ -7,6 +7,7 @@ import {
   mockWorkers,
   mockPayroll,
   mockContracts,
+  mockKpis,
 } from '../mock/constructionMockData';
 
 export interface Job {
@@ -88,6 +89,19 @@ export interface Contract {
   content: string;
 }
 
+export interface KpiData {
+  id: string;
+  label: string;
+  value: string | number;
+  delta?: number | string;
+  deltaPositiveIsGood?: boolean;
+  trend?: number[];
+  microcopy?: string;
+  icon?: string;
+  color?: string;
+  drilldownPath?: string;
+}
+
 interface ConstructionStoreState {
   jobs: Job[];
   bids: Bid[];
@@ -96,6 +110,7 @@ interface ConstructionStoreState {
   workers: Worker[];
   payroll: Payroll[];
   contracts: Contract[];
+  kpis: KpiData[];
   activeModule: string;
   isLoading: boolean;
 
@@ -121,6 +136,7 @@ const useConstructionStore = create<ConstructionStoreState>((set, get) => ({
   workers: mockWorkers,
   payroll: mockPayroll,
   contracts: mockContracts,
+  kpis: mockKpis,
   activeModule: 'dashboard',
   isLoading: false,
 
