@@ -212,6 +212,34 @@ export function DashboardPage() {
 
   return (
     <Box>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" fontWeight={800}>
+          Executive Dashboard
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Real-time overview of WoodwardStudio construction operations
+        </Typography>
+      </Box>
+
+      {/* KPI Cards */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        {[
+          { label: 'Total Projects', value: projects.length, icon: '🏗️', color: 'primary' },
+          { label: 'Active Jobs', value: activeJobs, icon: '💼', color: 'success' },
+          {
+            label: 'Total Revenue',
+            value: `$${(totalRevenue / 1000).toFixed(0)}k`,
+            icon: '💵',
+            color: 'warning',
+          },
+          { label: 'Crew Members', value: workers.length, icon: '👷', color: 'info' },
+        ].map((kpi, i) => (
+          <Grid item xs={12} sm={6} md={3} key={kpi.label}>
+            <KpiCard {...kpi} index={i} />
+          </Grid>
+        ))}
+      </Grid>
+
       {/* Global Search */}
       <Box sx={{ mb: 4 }}>
         <TextField
@@ -296,34 +324,6 @@ export function DashboardPage() {
           </Paper>
         )}
       </Box>
-
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={800}>
-          Executive Dashboard
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Real-time overview of WoodwardStudio construction operations
-        </Typography>
-      </Box>
-
-      {/* KPI Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        {[
-          { label: 'Total Projects', value: projects.length, icon: '🏗️', color: 'primary' },
-          { label: 'Active Jobs', value: activeJobs, icon: '💼', color: 'success' },
-          {
-            label: 'Total Revenue',
-            value: `$${(totalRevenue / 1000).toFixed(0)}k`,
-            icon: '💵',
-            color: 'warning',
-          },
-          { label: 'Crew Members', value: workers.length, icon: '👷', color: 'info' },
-        ].map((kpi, i) => (
-          <Grid item xs={12} sm={6} md={3} key={kpi.label}>
-            <KpiCard {...kpi} index={i} />
-          </Grid>
-        ))}
-      </Grid>
 
       <Grid container spacing={2}>
         {/* Project Progress */}
