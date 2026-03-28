@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import { Providers } from '@components/Providers/Providers';
+import FloatingRagChat from '@components/ai/FloatingRagChat';
 import { AppShell } from '@components/layout/AppShell';
 import { ConstructionLayout } from '@components/layout/ConstructionLayout';
 import HomePage from '@components/pages/HomePage';
@@ -21,8 +22,11 @@ function Layout() {
   return (
     <Providers>
       {() => (
-        <AppShell title="Starter App">
-          <Outlet />
+        <AppShell title="AI Construction Demos">
+          <>
+            <Outlet />
+            <FloatingRagChat />
+          </>
         </AppShell>
       )}
     </Providers>
@@ -34,7 +38,10 @@ function ConstructionPortalLayout() {
     <Providers>
       {() => (
         <ConstructionLayout>
-          <Outlet />
+          <>
+            <Outlet />
+            <FloatingRagChat />
+          </>
         </ConstructionLayout>
       )}
     </Providers>

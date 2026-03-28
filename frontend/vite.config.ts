@@ -10,7 +10,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3001,
-    allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', hostname]
+    allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', hostname],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [
     react(), 
