@@ -19,6 +19,7 @@ import {
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useConstructionStore } from '../../../../utilities/store/constructionStore';
+import { ExecutiveKpiCard } from './ExecutiveKpiCard';
 
 const MotionCard = motion(Card);
 
@@ -39,56 +40,6 @@ const recentActivity = [
   { time: '1d ago', text: 'New job added: Primary Bathroom Renovation', icon: '💼' },
   { time: '2d ago', text: 'Cedar Deck project kicked off', icon: '🏗️' },
 ];
-
-function KpiCard({
-  label,
-  value,
-  icon,
-  color,
-  index,
-}: {
-  label: string;
-  value: string | number;
-  icon: string;
-  color: string;
-  index: number;
-}) {
-  return (
-    <MotionCard
-      custom={index}
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      elevation={0}
-      sx={{ border: '1px solid', borderColor: 'divider', height: '100%' }}
-    >
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="body2" color="text.secondary" fontWeight={500}>
-            {label}
-          </Typography>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: 2,
-              bgcolor: `${color}.50`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 20,
-            }}
-          >
-            {icon}
-          </Box>
-        </Box>
-        <Typography variant="h4" fontWeight={800} color={`${color}.main`}>
-          {value}
-        </Typography>
-      </CardContent>
-    </MotionCard>
-  );
-}
 
 interface SearchResult {
   id: string;
@@ -124,14 +75,11 @@ function searchEntities<T>(q: string, config: SearchEntityConfig<T>): SearchResu
 }
 
 export function DashboardPage() {
-  const { jobs, projects, bids, workers, materials, contracts } = useConstructionStore();
+  const { jobs, projects, bids, workers, materials, contracts, kpis } = useConstructionStore();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const deferredQuery = useDeferredValue(query);
-
-  const totalRevenue = bids.reduce((sum, b) => sum + b.estimatedCost, 0);
-  const activeJobs = jobs.filter((j) => j.status === 'active').length;
 
   const handleClearSearch = useCallback(() => {
     setQuery('');
@@ -221,21 +169,22 @@ export function DashboardPage() {
         </Typography>
       </Box>
 
-      {/* KPI Cards */}
+      {/* Executive KPI Cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        {[
-          { label: 'Total Projects', value: projects.length, icon: '🏗️', color: 'primary' },
-          { label: 'Active Jobs', value: activeJobs, icon: '💼', color: 'success' },
-          {
-            label: 'Total Revenue',
-            value: `$${(totalRevenue / 1000).toFixed(0)}k`,
-            icon: '💵',
-            color: 'warning',
-          },
-          { label: 'Crew Members', value: workers.length, icon: '👷', color: 'info' },
-        ].map((kpi, i) => (
-          <Grid item xs={12} sm={6} md={3} key={kpi.label}>
-            <KpiCard {...kpi} index={i} />
+        {kpis.map((kpi, i) => (
+          <Grid item xs={12} sm={6} md={4} key={kpi.id}>
+            <ExecutiveKpiCard
+              label={kpi.label}
+              value={kpi.value}
+              delta={kpi.delta}
+              deltaPositiveIsGood={kpi.deltaPositiveIsGood}
+              trend={kpi.trend}
+              microcopy={kpi.microcopy}
+              icon={kpi.icon}
+              color={kpi.color}
+              index={i}
+              onClick={kpi.drilldownPath ? () => navigate(kpi.drilldownPath as string) : undefined}
+            />
           </Grid>
         ))}
       </Grid>

@@ -1,4 +1,4 @@
-import type { Job, Bid, Project, Material, Worker, Payroll, Contract } from '../store/constructionStore';
+import type { Job, Bid, Project, Material, Worker, Payroll, Contract, KpiData } from '../store/constructionStore';
 
 export const mockJobs: Job[] = [
   {
@@ -308,5 +308,85 @@ Contractor warrants all work for a period of two (2) years from completion date.
 SIGNATURES
 _______________________          _______________________
 Contractor                        Client`,
+  },
+];
+
+/**
+ * Mock KPI data used by the Executive Dashboard top-row cards.
+ * `trend` is a chronological array (oldest → newest) of normalized values.
+ * `delta` is the percent change vs prior period.
+ */
+export const mockKpis: KpiData[] = [
+  {
+    id: 'revenue-this-month',
+    label: 'Revenue This Month',
+    value: '$78k',
+    delta: 12.5,
+    deltaPositiveIsGood: true,
+    trend: [52, 58, 61, 55, 67, 71, 78],
+    microcopy: 'Based on 3 bids invoiced this month. Up from $69k last month.',
+    icon: '💵',
+    color: 'success',
+    drilldownPath: '/construction/bidding',
+  },
+  {
+    id: 'open-estimates-value',
+    label: 'Open Estimates Value',
+    value: '$36k',
+    delta: -8.2,
+    deltaPositiveIsGood: false,
+    trend: [44, 41, 48, 39, 37, 40, 36],
+    microcopy: '2 pending bids awaiting client approval. Conversion rate: 67%.',
+    icon: '📋',
+    color: 'warning',
+    drilldownPath: '/construction/bidding',
+  },
+  {
+    id: 'jobs-at-risk',
+    label: 'Jobs at Risk',
+    value: 1,
+    delta: 0,
+    deltaPositiveIsGood: false,
+    trend: [0, 1, 0, 2, 1, 1, 1],
+    microcopy: '1 job is behind schedule or over budget. Review recommended.',
+    icon: '⚠️',
+    color: 'error',
+    drilldownPath: '/construction/crm',
+  },
+  {
+    id: 'overdue-invoices',
+    label: 'Overdue Invoices',
+    value: '$12k',
+    delta: -5.0,
+    deltaPositiveIsGood: false,
+    trend: [18, 16, 14, 15, 13, 14, 12],
+    microcopy: '2 invoices past due 30+ days. Follow up with clients.',
+    icon: '🧾',
+    color: 'error',
+    drilldownPath: '/construction/contracts',
+  },
+  {
+    id: 'gross-margin-exposure',
+    label: 'Gross Margin Exposure',
+    value: '22%',
+    delta: -3.1,
+    deltaPositiveIsGood: false,
+    trend: [28, 26, 25, 27, 24, 23, 22],
+    microcopy: 'Material cost overruns on 2 jobs are compressing margins.',
+    icon: '📉',
+    color: 'warning',
+    drilldownPath: '/construction/materials',
+  },
+  {
+    id: 'crew-utilization',
+    label: 'Crew Utilization',
+    value: '82%',
+    delta: 4.3,
+    deltaPositiveIsGood: true,
+    trend: [70, 74, 72, 76, 79, 80, 82],
+    microcopy: '4 of 4 crew members actively assigned. Target: ≥ 85%.',
+    icon: '👷',
+    color: 'info',
+    drilldownPath: '/construction/workforce',
   },
 ];
