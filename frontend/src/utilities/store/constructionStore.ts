@@ -8,6 +8,8 @@ import {
   mockPayroll,
   mockContracts,
   mockKpis,
+  mockActionRecommendations,
+  mockCopperPriceData,
 } from '../mock/constructionMockData';
 
 export interface Job {
@@ -102,6 +104,63 @@ export interface KpiData {
   drilldownPath?: string;
 }
 
+export type UrgencyLevel = 'critical' | 'high' | 'medium' | 'low';
+
+export type RecommendationType =
+  | 'reprice'
+  | 'follow-up'
+  | 'invoice'
+  | 'review'
+  | 'resolve';
+
+export interface LinkedEntity {
+  id: string;
+  label: string;
+  type: 'job' | 'bid' | 'contract' | 'worker' | 'material' | 'project';
+  path: string;
+}
+
+export interface ActionCTA {
+  label: string;
+  variant: 'contained' | 'outlined' | 'text';
+  /** Navigate to this app path when clicked */
+  path?: string;
+  /** Identifies an agent action slug (e.g. "reprice-estimates") */
+  agentAction?: string;
+}
+
+export interface ActionRecommendation {
+  id: string;
+  /** Lower number = higher priority */
+  rank: number;
+  type: RecommendationType;
+  title: string;
+  reason: string;
+  urgency: UrgencyLevel;
+  /** 0–100 AI confidence score */
+  confidence: number;
+  linkedEntities: LinkedEntity[];
+  primaryCta: ActionCTA;
+  secondaryCta?: ActionCTA;
+  icon?: string;
+}
+
+export interface CopperPricePoint {
+  date: string;
+  pricePerLb: number;
+}
+
+export interface CopperPriceData {
+  points: CopperPricePoint[];
+  /** Most recent price */
+  currentPrice: number;
+  /** Price 30 days ago */
+  priceMonthAgo: number;
+  /** Estimated impact on open bids in dollars */
+  estimatedImpact: number;
+  lastUpdated: string;
+}
+
 interface ConstructionStoreState {
   jobs: Job[];
   bids: Bid[];
@@ -111,6 +170,8 @@ interface ConstructionStoreState {
   payroll: Payroll[];
   contracts: Contract[];
   kpis: KpiData[];
+  actionRecommendations: ActionRecommendation[];
+  copperPriceData: CopperPriceData;
   activeModule: string;
   isLoading: boolean;
 
@@ -137,6 +198,8 @@ const useConstructionStore = create<ConstructionStoreState>((set, get) => ({
   payroll: mockPayroll,
   contracts: mockContracts,
   kpis: mockKpis,
+  actionRecommendations: mockActionRecommendations,
+  copperPriceData: mockCopperPriceData,
   activeModule: 'dashboard',
   isLoading: false,
 
