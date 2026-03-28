@@ -20,6 +20,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useConstructionStore } from '../../../../utilities/store/constructionStore';
 import { ExecutiveKpiCard } from './ExecutiveKpiCard';
+import { SuggestedActionsCard } from './SuggestedActionsCard';
+import { CopperPriceChart } from './CopperPriceChart';
+import type { ActionRecommendation } from '../../../../utilities/store/constructionStore';
 
 const MotionCard = motion(Card);
 
@@ -75,7 +78,7 @@ function searchEntities<T>(q: string, config: SearchEntityConfig<T>): SearchResu
 }
 
 export function DashboardPage() {
-  const { jobs, projects, bids, workers, materials, contracts, kpis } = useConstructionStore();
+  const { jobs, projects, bids, workers, materials, contracts, kpis, actionRecommendations, copperPriceData } = useConstructionStore();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -90,6 +93,11 @@ export function DashboardPage() {
     setQuery('');
     navigate(path);
   }, [navigate]);
+
+  const handleAgentAction = useCallback((_action: ActionRecommendation, slug: string) => {
+    // Placeholder: in production this would trigger an AI agent workflow
+    console.info('[Agent] Triggering agent action:', slug);
+  }, []);
 
   const searchResults: SearchResult[] = React.useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
@@ -188,6 +196,19 @@ export function DashboardPage() {
           </Grid>
         ))}
       </Grid>
+
+      {/* Suggested Next Actions (full-width) */}
+      <Box sx={{ mb: 3 }}>
+        <SuggestedActionsCard
+          actions={actionRecommendations}
+          onAgentAction={handleAgentAction}
+        />
+      </Box>
+
+      {/* Copper Price Index (full-width) */}
+      <Box sx={{ mb: 4 }}>
+        <CopperPriceChart data={copperPriceData} index={1} />
+      </Box>
 
       {/* Global Search */}
       <Box sx={{ mb: 4 }}>

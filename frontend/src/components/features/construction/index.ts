@@ -1,6 +1,10 @@
 export { default as DashboardPage } from './Dashboard/DashboardPage';
 export { ExecutiveKpiCard } from './Dashboard/ExecutiveKpiCard';
 export type { ExecutiveKpiCardProps, TrendPoint, KpiStatus } from './Dashboard/ExecutiveKpiCard';
+export { SuggestedActionsCard } from './Dashboard/SuggestedActionsCard';
+export type { SuggestedActionsCardProps } from './Dashboard/SuggestedActionsCard';
+export { CopperPriceChart } from './Dashboard/CopperPriceChart';
+export type { CopperPriceChartProps } from './Dashboard/CopperPriceChart';
 export { default as CRMPage } from './CRM/CRMPage';
 export { default as BiddingPage } from './Bidding/BiddingPage';
 export { default as ProjectsPage } from './Projects/ProjectsPage';

@@ -1,4 +1,4 @@
-import type { Job, Bid, Project, Material, Worker, Payroll, Contract, KpiData } from '../store/constructionStore';
+import type { Job, Bid, Project, Material, Worker, Payroll, Contract, KpiData, ActionRecommendation, CopperPriceData } from '../store/constructionStore';
 
 export const mockJobs: Job[] = [
   {
@@ -390,3 +390,166 @@ export const mockKpis: KpiData[] = [
     drilldownPath: '/construction/workforce',
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Suggested Next Actions (AI Recommendations)
+// ---------------------------------------------------------------------------
+export const mockActionRecommendations: ActionRecommendation[] = [
+  {
+    id: 'action-1',
+    rank: 1,
+    type: 'reprice',
+    title: 'Reprice copper-sensitive estimates',
+    reason:
+      'Copper spot price has risen 14% over the past 30 days. Two open bids (Kitchen Remodel, Cedar Deck) include wiring materials priced at the old rate — estimated exposure is ~$2,400.',
+    urgency: 'critical',
+    confidence: 92,
+    icon: '📈',
+    linkedEntities: [
+      { id: 'bid-1', label: 'Kitchen Remodel Bid', type: 'bid', path: '/construction/bidding' },
+      { id: 'bid-2', label: 'Cedar Deck Bid', type: 'bid', path: '/construction/bidding' },
+      { id: 'mat-4', label: 'Electrical Wire 12AWG', type: 'material', path: '/construction/materials' },
+    ],
+    primaryCta: {
+      label: 'Review Bids',
+      variant: 'contained',
+      path: '/construction/bidding',
+    },
+    secondaryCta: {
+      label: 'Run with Agent',
+      variant: 'outlined',
+      agentAction: 'reprice-copper-estimates',
+    },
+  },
+  {
+    id: 'action-2',
+    rank: 2,
+    type: 'follow-up',
+    title: 'Follow up on unsigned proposals',
+    reason:
+      'The Cedar Deck contract has been in "draft" status for 12 days without client signature. Deals unsigned past 14 days have a 40% lower close rate.',
+    urgency: 'high',
+    confidence: 87,
+    icon: '✍️',
+    linkedEntities: [
+      { id: 'contract-2', label: 'Cedar Deck Construction Contract', type: 'contract', path: '/construction/contracts' },
+      { id: 'job-2', label: 'Outdoor Cedar Deck Build', type: 'job', path: '/construction/crm' },
+    ],
+    primaryCta: {
+      label: 'View Contract',
+      variant: 'contained',
+      path: '/construction/contracts',
+    },
+    secondaryCta: {
+      label: 'Draft Follow-up',
+      variant: 'outlined',
+      agentAction: 'draft-client-followup',
+    },
+  },
+  {
+    id: 'action-3',
+    rank: 3,
+    type: 'invoice',
+    title: 'Send overdue invoice reminders',
+    reason:
+      '$12k in invoices are past 30 days due. Two clients have not responded to the initial invoice. Sending a reminder now recovers payment 2× faster on average.',
+    urgency: 'high',
+    confidence: 95,
+    icon: '🧾',
+    linkedEntities: [
+      { id: 'job-1', label: 'Master Kitchen Remodel', type: 'job', path: '/construction/crm' },
+    ],
+    primaryCta: {
+      label: 'View Invoices',
+      variant: 'contained',
+      path: '/construction/contracts',
+    },
+    secondaryCta: {
+      label: 'Send Reminders',
+      variant: 'outlined',
+      agentAction: 'send-invoice-reminders',
+    },
+  },
+  {
+    id: 'action-4',
+    rank: 4,
+    type: 'review',
+    title: 'Review over-budget jobs',
+    reason:
+      '1 job is tracking 8% over its original budget due to material cost overruns on tile and plumbing. Early review prevents margin erosion before final billing.',
+    urgency: 'medium',
+    confidence: 81,
+    icon: '⚠️',
+    linkedEntities: [
+      { id: 'job-3', label: 'Primary Bathroom Renovation', type: 'job', path: '/construction/crm' },
+      { id: 'mat-3', label: 'Porcelain Floor Tile 12x24', type: 'material', path: '/construction/materials' },
+      { id: 'mat-5', label: 'PEX Plumbing Tubing 1/2"', type: 'material', path: '/construction/materials' },
+    ],
+    primaryCta: {
+      label: 'View Job',
+      variant: 'contained',
+      path: '/construction/crm',
+    },
+    secondaryCta: {
+      label: 'Analyze Budget',
+      variant: 'outlined',
+      agentAction: 'analyze-budget-overrun',
+    },
+  },
+  {
+    id: 'action-5',
+    rank: 5,
+    type: 'resolve',
+    title: 'Resolve missing timesheets',
+    reason:
+      'Tom Rivera has not submitted a timesheet for 3 days on the Cedar Deck project. Missing timesheets delay payroll and can cause billing discrepancies.',
+    urgency: 'medium',
+    confidence: 78,
+    icon: '🕐',
+    linkedEntities: [
+      { id: 'worker-3', label: 'Tom Rivera', type: 'worker', path: '/construction/workforce' },
+      { id: 'proj-2', label: 'Outdoor Cedar Deck Build', type: 'project', path: '/construction/projects' },
+    ],
+    primaryCta: {
+      label: 'View Workforce',
+      variant: 'contained',
+      path: '/construction/workforce',
+    },
+    secondaryCta: {
+      label: 'Notify Worker',
+      variant: 'outlined',
+      agentAction: 'notify-missing-timesheet',
+    },
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Copper Price Mock Data
+// Prices in USD per pound, last 30 days (oldest → newest)
+// ---------------------------------------------------------------------------
+function buildCopperPrices(): CopperPriceData['points'] {
+  const base = 3.82;
+  const prices = [
+    3.82, 3.79, 3.81, 3.84, 3.86, 3.88, 3.85, 3.87, 3.91, 3.94,
+    3.96, 3.93, 3.98, 4.01, 3.99, 4.02, 4.05, 4.08, 4.06, 4.09,
+    4.12, 4.10, 4.14, 4.17, 4.15, 4.19, 4.22, 4.20, 4.24, 4.35,
+  ];
+  const today = new Date('2024-05-28');
+  return prices.map((pricePerLb, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (prices.length - 1 - i));
+    return {
+      date: d.toISOString().split('T')[0],
+      pricePerLb,
+    };
+  });
+  void base;
+}
+
+export const mockCopperPriceData: CopperPriceData = {
+  points: buildCopperPrices(),
+  currentPrice: 4.35,
+  priceMonthAgo: 3.82,
+  estimatedImpact: 2400,
+  lastUpdated: '2024-05-28T09:00:00Z',
+};
