@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef, useState, useDeferredValue } from 'react';
 import {
   Box,
   Card,
@@ -12,8 +12,12 @@ import {
   ListItemText,
   Divider,
   Paper,
+  InputAdornment,
+  TextField,
+  ListItemButton,
 } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useConstructionStore } from '../../../../utilities/store/constructionStore';
 
 const MotionCard = motion(Card);
@@ -86,14 +90,213 @@ function KpiCard({
   );
 }
 
+interface SearchResult {
+  id: string;
+  category: string;
+  icon: string;
+  title: string;
+  subtitle: string;
+  path: string;
+}
+
+interface SearchEntityConfig<T> {
+  items: T[];
+  category: string;
+  icon: string;
+  path: string;
+  fields: (item: T) => string[];
+  subtitle: (item: T) => string;
+  getId: (item: T) => string;
+  getTitle: (item: T) => string;
+}
+
+function searchEntities<T>(q: string, config: SearchEntityConfig<T>): SearchResult[] {
+  return config.items
+    .filter((item) => config.fields(item).some((f) => f.toLowerCase().includes(q)))
+    .map((item) => ({
+      id: config.getId(item),
+      category: config.category,
+      icon: config.icon,
+      title: config.getTitle(item),
+      subtitle: config.subtitle(item),
+      path: config.path,
+    }));
+}
+
 export function DashboardPage() {
-  const { jobs, projects, bids, workers } = useConstructionStore();
+  const { jobs, projects, bids, workers, materials, contracts } = useConstructionStore();
+  const navigate = useNavigate();
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query);
 
   const totalRevenue = bids.reduce((sum, b) => sum + b.estimatedCost, 0);
   const activeJobs = jobs.filter((j) => j.status === 'active').length;
 
+  const handleClearSearch = useCallback(() => {
+    setQuery('');
+    searchRef.current?.focus();
+  }, []);
+
+  const handleResultClick = useCallback((path: string) => {
+    setQuery('');
+    navigate(path);
+  }, [navigate]);
+
+  const searchResults: SearchResult[] = React.useMemo(() => {
+    const q = deferredQuery.trim().toLowerCase();
+    if (!q) return [];
+
+    return [
+      ...searchEntities(q, {
+        items: jobs,
+        category: 'Jobs',
+        icon: '💼',
+        path: '/construction/crm',
+        fields: (j) => [j.title, j.location, j.jobType],
+        subtitle: (j) => `${j.jobType} · ${j.location}`,
+        getId: (j) => j.id,
+        getTitle: (j) => j.title,
+      }),
+      ...searchEntities(q, {
+        items: projects,
+        category: 'Projects',
+        icon: '🏗️',
+        path: '/construction/projects',
+        fields: (p) => [p.title, p.status],
+        subtitle: (p) => `${p.status} · ${p.progress}% complete`,
+        getId: (p) => p.id,
+        getTitle: (p) => p.title,
+      }),
+      ...searchEntities(q, {
+        items: workers,
+        category: 'Workforce',
+        icon: '👷',
+        path: '/construction/workforce',
+        fields: (w) => [w.name, w.role, w.email],
+        subtitle: (w) => `${w.role} · ${w.hoursLogged}h logged`,
+        getId: (w) => w.id,
+        getTitle: (w) => w.name,
+      }),
+      ...searchEntities(q, {
+        items: materials,
+        category: 'Materials',
+        icon: '📦',
+        path: '/construction/materials',
+        fields: (m) => [m.name, m.vendor, m.status],
+        subtitle: (m) => `${m.vendor} · ${m.status}`,
+        getId: (m) => m.id,
+        getTitle: (m) => m.name,
+      }),
+      ...searchEntities(q, {
+        items: contracts,
+        category: 'Contracts',
+        icon: '⚖️',
+        path: '/construction/contracts',
+        fields: (c) => [c.title, c.status],
+        subtitle: (c) => `Status: ${c.status}`,
+        getId: (c) => c.id,
+        getTitle: (c) => c.title,
+      }),
+    ];
+  }, [deferredQuery, jobs, projects, workers, materials, contracts]);
+
+  const grouped = React.useMemo(() => {
+    const map: Record<string, SearchResult[]> = {};
+    searchResults.forEach((r) => {
+      if (!map[r.category]) map[r.category] = [];
+      map[r.category].push(r);
+    });
+    return map;
+  }, [searchResults]);
+
   return (
     <Box>
+      {/* Global Search */}
+      <Box sx={{ mb: 4 }}>
+        <TextField
+          inputRef={searchRef}
+          autoFocus
+          fullWidth
+          placeholder="Search jobs, projects, workers, materials, contracts…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          variant="outlined"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Typography fontSize={20}>🔍</Typography>
+              </InputAdornment>
+            ),
+            endAdornment: query ? (
+              <InputAdornment position="end">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={handleClearSearch}
+                >
+                  ✕ Clear
+                </Typography>
+              </InputAdornment>
+            ) : undefined,
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              fontSize: 16,
+            },
+          }}
+        />
+
+        {query.trim() && (
+          <Paper
+            elevation={0}
+            variant="outlined"
+            sx={{ mt: 1, borderRadius: 2, overflow: 'hidden' }}
+          >
+            {searchResults.length === 0 ? (
+              <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  No results for &ldquo;{query}&rdquo;
+                </Typography>
+              </Box>
+            ) : (
+              Object.entries(grouped).map(([category, items], gi) => (
+                <React.Fragment key={category}>
+                  {gi > 0 && <Divider />}
+                  <Box sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
+                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+                      {category}
+                    </Typography>
+                  </Box>
+                  <List dense disablePadding>
+                    {items.map((result, ri) => (
+                      <React.Fragment key={result.id}>
+                        {ri > 0 && <Divider component="li" />}
+                        <ListItemButton
+                          onClick={() => handleResultClick(result.path)}
+                          sx={{ px: 2, py: 1 }}
+                        >
+                          <Box sx={{ mr: 1.5, fontSize: 18, lineHeight: 1 }}>{result.icon}</Box>
+                          <ListItemText
+                            primary={result.title}
+                            secondary={result.subtitle}
+                            primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                            secondaryTypographyProps={{ variant: 'caption' }}
+                          />
+                          <Typography variant="caption" color="text.disabled">→</Typography>
+                        </ListItemButton>
+                      </React.Fragment>
+                    ))}
+                  </List>
+                </React.Fragment>
+              ))
+            )}
+          </Paper>
+        )}
+      </Box>
+
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" fontWeight={800}>
           Executive Dashboard
