@@ -7,3 +7,4 @@ export { default as MaterialsPage } from './Materials/MaterialsPage';
 export { default as WorkforcePage } from './Workforce/WorkforcePage';
 export { default as PayrollPage } from './Payroll/PayrollPage';
 export { default as ContractsPage } from './Contracts/ContractsPage';
+export { DashboardCard, StatusChip, MetricChip, TrendChip } from './shared';
